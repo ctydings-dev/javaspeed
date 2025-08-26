@@ -10,7 +10,7 @@ import org.json.JSONObject;
  *
  * @author ctydi
  */
-public class Customer extends LightspeedData {
+public class Customer extends PostalAddressedData {
 
     private String firstName;
     private String lastName;
@@ -31,22 +31,6 @@ public class Customer extends LightspeedData {
     private String phone;
     private String mobile;
     private double loyaltyBalance;
-    private String physicalAddress1;
-    private String physicalAddress2;
-    private String physicalSuburb;
-    private String physicalCity;
-    private String physicalState;
-    private String physicalCountry;
-    private String physicalPostCode;
-    private String postalAddress1;
-    private String postalAddress2;
-    private String postalSuburb;
-    private String postalCity;
-    private String postalState;
-    private String postalCountry;
-    private String postalPostCode;
-
-    private static boolean SYNC_ADDRESSES = true;
 
     public String getFirstName() {
         return firstName;
@@ -125,46 +109,6 @@ public class Customer extends LightspeedData {
         this.phone = LightspeedDataParser.getJSONString(json, "phone");
         this.mobile = LightspeedDataParser.getJSONString(json, "mobile");
 
-        this.physicalAddress1 = LightspeedDataParser.getJSONString(json, "physical_address_1");
-        this.physicalAddress2 = LightspeedDataParser.getJSONString(json, "physical_address_2");
-        this.physicalSuburb = LightspeedDataParser.getJSONString(json, "physical_suburb");
-        this.physicalCity = LightspeedDataParser.getJSONString(json, "physical_city");
-        this.physicalState = LightspeedDataParser.getJSONString(json, "physical_state");
-        this.physicalCountry = LightspeedDataParser.getJSONString(json, "physical_country_id");
-        this.physicalPostCode = LightspeedDataParser.getJSONString(json, "physical_postcode");
-
-        this.postalAddress1 = LightspeedDataParser.getJSONString(json, "postal_address_1");
-        this.postalAddress2 = LightspeedDataParser.getJSONString(json, "postal_address_2");
-        this.postalSuburb = LightspeedDataParser.getJSONString(json, "postal_suburb");
-        this.postalCity = LightspeedDataParser.getJSONString(json, "postal_city");
-        this.postalState = LightspeedDataParser.getJSONString(json, "postal_state");
-        this.postalCountry = LightspeedDataParser.getJSONString(json, "postal_country_id");
-        this.postalPostCode = LightspeedDataParser.getJSONString(json, "postal_postcode");
-        if (SYNC_ADDRESSES) {
-            //    this.syncToPhysicalAddress();
-
-            this.syncToPostalAddress();
-        }
-
-    }
-
-    public void syncToPhysicalAddress() {
-        this.postalAddress1 = this.physicalAddress1;
-        this.postalAddress2 = this.physicalAddress2;
-        this.postalSuburb = this.physicalSuburb;
-        this.postalCity = this.physicalCity;
-        this.postalState = this.physicalState;
-        this.postalCountry = this.physicalState;
-    }
-
-    public void syncToPostalAddress() {
-        this.physicalAddress1 = this.postalAddress1;
-        this.physicalAddress2 = this.postalAddress2;
-        this.physicalSuburb = this.postalSuburb;
-        this.physicalCity = this.postalCity;
-        this.physicalState = this.postalState;
-        this.physicalCountry = this.postalCountry;
-        this.physicalPostCode = this.postalPostCode;
     }
 
     public String getSourceId() {
@@ -185,66 +129,6 @@ public class Customer extends LightspeedData {
 
     public double getLoyaltyBalance() {
         return loyaltyBalance;
-    }
-
-    public String getPhysicalAddress1() {
-        return physicalAddress1;
-    }
-
-    public String getPhysicalAddress2() {
-        return physicalAddress2;
-    }
-
-    public String getPhysicalSuburb() {
-        return physicalSuburb;
-    }
-
-    public String getPhysicalCity() {
-        return physicalCity;
-    }
-
-    public String getPhysicalState() {
-        return physicalState;
-    }
-
-    public String getPhysicalCountry() {
-        return physicalCountry;
-    }
-
-    public String getPhysicalPostCode() {
-        return physicalPostCode;
-    }
-
-    public String getPostalAddress1() {
-        return postalAddress1;
-    }
-
-    public String getPostalAddress2() {
-        return postalAddress2;
-    }
-
-    public String getPostalSuburb() {
-        return postalSuburb;
-    }
-
-    public String getPostalCity() {
-        return postalCity;
-    }
-
-    public String getPostalState() {
-        return postalState;
-    }
-
-    public String getPostalCountry() {
-        return postalCountry;
-    }
-
-    public String getPostalPostCode() {
-        return postalPostCode;
-    }
-
-    public static boolean isSYNC_ADDRESSES() {
-        return SYNC_ADDRESSES;
     }
 
     public void setFirstName(String firstName) {
@@ -323,66 +207,6 @@ public class Customer extends LightspeedData {
         this.loyaltyBalance = loyaltyBalance;
     }
 
-    public void setPhysicalAddress1(String physicalAddress1) {
-        this.physicalAddress1 = physicalAddress1;
-    }
-
-    public void setPhysicalAddress2(String physicalAddress2) {
-        this.physicalAddress2 = physicalAddress2;
-    }
-
-    public void setPhysicalSuburb(String physicalSuburb) {
-        this.physicalSuburb = physicalSuburb;
-    }
-
-    public void setPhysicalCity(String physicalCity) {
-        this.physicalCity = physicalCity;
-    }
-
-    public void setPhysicalState(String physicalState) {
-        this.physicalState = physicalState;
-    }
-
-    public void setPhysicalCountry(String physicalCountry) {
-        this.physicalCountry = physicalCountry;
-    }
-
-    public void setPhysicalPostCode(String physicalPostCode) {
-        this.physicalPostCode = physicalPostCode;
-    }
-
-    public void setPostalAddress1(String postalAddress1) {
-        this.postalAddress1 = postalAddress1;
-    }
-
-    public void setPostalAddress2(String postalAddress2) {
-        this.postalAddress2 = postalAddress2;
-    }
-
-    public void setPostalSuburb(String postalSuburb) {
-        this.postalSuburb = postalSuburb;
-    }
-
-    public void setPostalCity(String postalCity) {
-        this.postalCity = postalCity;
-    }
-
-    public void setPostalState(String postalState) {
-        this.postalState = postalState;
-    }
-
-    public void setPostalCountry(String postalCountry) {
-        this.postalCountry = postalCountry;
-    }
-
-    public void setPostalPostCode(String postalPostCode) {
-        this.postalPostCode = postalPostCode;
-    }
-
-    public static void setSYNC_ADDRESSES(boolean SYNC_ADDRESSES) {
-        Customer.SYNC_ADDRESSES = SYNC_ADDRESSES;
-    }
-
     @Override
     protected void addAdditionalJSONData(JSONObject json) {
 
@@ -395,19 +219,6 @@ public class Customer extends LightspeedData {
         LightspeedDataParser.setJSONString(json, "phone", this.getPhone());
         LightspeedDataParser.setJSONString(json, "mobile", this.getMobile());
         LightspeedDataParser.setJSONString(json, "email", this.getEmail());
-        LightspeedDataParser.setJSONString(json, "physical_address_1", this.getPhysicalAddress1());
-        LightspeedDataParser.setJSONString(json, "physical_address_2", this.getPhysicalAddress2());
-        LightspeedDataParser.setJSONString(json, "physical_suburb", this.getPhysicalSuburb());
-        LightspeedDataParser.setJSONString(json, "physcial_state", this.getPhysicalState());
-        LightspeedDataParser.setJSONString(json, "physical_country_id", this.getPhysicalCountry());
-        LightspeedDataParser.setJSONString(json, "physical_postcode", this.getPhysicalPostCode());
-
-        LightspeedDataParser.setJSONString(json, "postal_address_1", this.getPostalAddress1());
-        LightspeedDataParser.setJSONString(json, "ppstal_address_2", this.getPostalAddress2());
-        LightspeedDataParser.setJSONString(json, "postal_suburb", this.getPostalSuburb());
-        LightspeedDataParser.setJSONString(json, "postal_state", this.getPostalState());
-        LightspeedDataParser.setJSONString(json, "postal_country_id", this.getPostalCountry());
-        LightspeedDataParser.setJSONString(json, "postal_postcode", this.getPostalPostCode());
 
     }
 

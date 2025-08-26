@@ -16,6 +16,7 @@ public class SqlWriter {
 
     public static void writeCustomerToDB(Connection con, Customer toWrite) throws SQLException {
         String stmt = "INSERT INTO persons(customer_id, customer_code, first_name, last_name, street, city, state, country, post_code, email, phone) VALUES(";
+
         String fName = toWrite.getFirstName().replace("'", "\\'");
         String lName = toWrite.getLastName().replace("'", "\\'");
         String street = toWrite.getPhysicalAddress1().replace("'", "\\'");

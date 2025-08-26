@@ -10,11 +10,11 @@ import org.json.JSONObject;
  *
  * @author ctydi
  */
-public class Category extends SourcedData {
+public class Brand extends DescriptiveData {
 
     @Override
     public String objectName() {
-        return "CATEGORY";
+        return "BRAND";
     }
 
     @Override
@@ -24,6 +24,6 @@ public class Category extends SourcedData {
 
     @Override
     protected void addAdditionalJSONData(JSONObject json) {
-
     }
+
 }

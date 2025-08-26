@@ -15,13 +15,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javaspeed.lightspeed.data.Customer;
+import javaspeed.lightspeed.data.Product;
 import org.json.*;
 
 /**
  *
  * @author ctydi
  */
-public class LightspeedCaller {
+public abstract class LightspeedCaller {
 
     private final String url;
     private final String token;
@@ -47,27 +48,6 @@ public class LightspeedCaller {
         return "api/" + path;
     }
 
-    public List<Customer> getCustomers() throws IOException {
-
-        String data = this.sendGetRequest(this.create20API("customers"), 99999);
-        JSONObject parsed = new JSONObject(data);
-        JSONArray customers = parsed.getJSONArray("data");
-        List<Customer> ret = new ArrayList<>();
-
-        for (int index = 0; index < customers.length(); index++) {
-            Customer toAdd = new Customer();
-            toAdd.loadJSONData(customers.getJSONObject(index));
-            ret.add(toAdd);
-        }
-        return ret;
-    }
-
-    public void addCustomer(Customer toAdd) throws IOException {
-        JSONObject value = toAdd.getCreateJSON();
-        this.sendPostRequest(this.create20API("customers"), value.toString());
-
-    }
-
     protected String createGetURL(String path, int page, int pageSize) {
 
         String ret = this.getURL() + "/" + path;
@@ -84,7 +64,7 @@ public class LightspeedCaller {
         return ret;
     }
 
-    public String sendGetRequest(String path, int pageSize) throws MalformedURLException, IOException {
+    protected String sendGetRequest(String path, int pageSize) throws MalformedURLException, IOException {
         final String charset = "UTF-8";
         String urlToRead;
         // Create the connection
@@ -118,7 +98,7 @@ public class LightspeedCaller {
 
     }
 
-    public void sendPostRequest(String path, String JSON) throws MalformedURLException, IOException {
+    protected void sendPostRequest(String path, String JSON) throws MalformedURLException, IOException {
         final String charset = "UTF-8";
         String urlToRead;
         // Create the connection
