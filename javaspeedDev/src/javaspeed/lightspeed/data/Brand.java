@@ -12,6 +12,15 @@ import org.json.JSONObject;
  */
 public class Brand extends DescriptiveData {
 
+    public Brand() {
+
+    }
+
+    public Brand(String key, String name) {
+        this.setId(key);
+        this.setName(name);
+    }
+
     @Override
     public String objectName() {
         return "BRAND";

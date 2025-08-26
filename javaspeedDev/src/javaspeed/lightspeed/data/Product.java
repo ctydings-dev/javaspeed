@@ -25,10 +25,13 @@ public class Product extends SourcedData {
     private Double supplyPrice;
     private Inventory[] inventory;
     private ProductCode[] codes;
+    private Tag[] tags;
 
     public Product() {
         this.inventory = new Inventory[0];
         this.codes = new ProductCode[0];
+        this.supplier = new Supplier();
+        this.brand = new Brand();
     }
 
     public Supplier getSupplier() {
@@ -55,6 +58,14 @@ public class Product extends SourcedData {
 
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
+    }
+
+    public ProductCode[] getCodes() {
+        return codes;
+    }
+
+    public Tag[] getTags() {
+        return tags;
     }
 
     public Brand getBrand() {
@@ -158,6 +169,15 @@ public class Product extends SourcedData {
 
             }
 
+        }
+        if (!json.isNull("price_excluding_tax")) {
+            this.priceExcludingTax = json.getDouble("price_excluding_tax");
+        }
+        if (!json.isNull("price_including_tax")) {
+            this.priceIncludingTax = json.getDouble("price_including_tax");
+        }
+        if (!json.isNull("supply_price")) {
+            this.supplyPrice = json.getDouble("supply_price");
         }
         this.sku = LightspeedDataParser.getJSONString(json, "sku");
     }

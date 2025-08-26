@@ -26,6 +26,10 @@ public abstract class LightspeedData {
         return id;
     }
 
+    protected void setId(String key) {
+        this.id = key;
+    }
+
     public abstract String objectName();
 
     public void loadJSONData(JSONObject data) {

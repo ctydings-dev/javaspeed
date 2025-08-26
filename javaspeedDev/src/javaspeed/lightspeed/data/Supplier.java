@@ -12,6 +12,14 @@ import org.json.JSONObject;
  */
 public class Supplier extends SourcedData {
 
+    public Supplier() {
+    }
+
+    public Supplier(String key, String name) {
+        this.setId(key);
+        this.setName(name);
+    }
+
     @Override
     public String objectName() {
         return "SUPPLIER";

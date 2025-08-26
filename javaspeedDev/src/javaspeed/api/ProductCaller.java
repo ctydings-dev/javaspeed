@@ -7,9 +7,12 @@ package javaspeed.api;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javaspeed.lightspeed.data.Brand;
 import javaspeed.lightspeed.data.Category;
 import javaspeed.lightspeed.data.Customer;
+import javaspeed.lightspeed.data.Inventory;
 import javaspeed.lightspeed.data.Product;
+import javaspeed.lightspeed.data.Supplier;
 import javaspeed.lightspeed.data.Tag;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -78,12 +81,60 @@ public class ProductCaller extends LightspeedCaller {
         String data = this.sendGetRequest(this.create20API("tags"), 99999);
         JSONObject parsed = new JSONObject(data);
 
-        JSONArray customers = parsed.getJSONArray("data");
+        JSONArray values = parsed.getJSONArray("data");
         List<Tag> ret = new ArrayList<>();
 
-        for (int index = 0; index < customers.length(); index++) {
+        for (int index = 0; index < values.length(); index++) {
             Tag toAdd = new Tag();
-            toAdd.loadJSONData(customers.getJSONObject(index));
+            toAdd.loadJSONData(values.getJSONObject(index));
+            ret.add(toAdd);
+        }
+        return ret;
+    }
+
+    public List<Supplier> getSuppliers() throws IOException {
+
+        String data = this.sendGetRequest(this.create20API("suppliers"), 99999);
+        JSONObject parsed = new JSONObject(data);
+
+        JSONArray values = parsed.getJSONArray("data");
+        List<Supplier> ret = new ArrayList<>();
+
+        for (int index = 0; index < values.length(); index++) {
+            Supplier toAdd = new Supplier();
+            toAdd.loadJSONData(values.getJSONObject(index));
+            ret.add(toAdd);
+        }
+        return ret;
+    }
+
+    public List<Brand> getBrands() throws IOException {
+
+        String data = this.sendGetRequest(this.create20API("brands"), 99999);
+        JSONObject parsed = new JSONObject(data);
+
+        JSONArray values = parsed.getJSONArray("data");
+        List<Brand> ret = new ArrayList<>();
+
+        for (int index = 0; index < values.length(); index++) {
+            Brand toAdd = new Brand();
+            toAdd.loadJSONData(values.getJSONObject(index));
+            ret.add(toAdd);
+        }
+        return ret;
+    }
+
+    public List<Inventory> getInventories() throws IOException {
+
+        String data = this.sendGetRequest(this.create20API("inventory"), 99999);
+        JSONObject parsed = new JSONObject(data);
+
+        JSONArray values = parsed.getJSONArray("data");
+        List<Inventory> ret = new ArrayList<>();
+
+        for (int index = 0; index < values.length(); index++) {
+            Inventory toAdd = new Inventory();
+            toAdd.loadJSONData(values.getJSONObject(index));
             ret.add(toAdd);
         }
         return ret;
@@ -92,6 +143,22 @@ public class ProductCaller extends LightspeedCaller {
     public String addProductTag(Tag toAdd) throws IOException {
         JSONObject value = toAdd.getCreateJSON();
         String response = this.sendPostRequest(this.create20API("tags"), value.toString());
+        JSONObject key = new JSONObject(response);
+        String keyValue = key.getString("data");
+        return keyValue;
+    }
+
+    public String addSupplier(Supplier toAdd) throws IOException {
+        JSONObject value = toAdd.getCreateJSON();
+        String response = this.sendPostRequest(this.create20API("suppliers"), value.toString());
+        JSONObject key = new JSONObject(response);
+        String keyValue = key.getString("data");
+        return keyValue;
+    }
+
+    public String addBrand(Brand toAdd) throws IOException {
+        JSONObject value = toAdd.getCreateJSON();
+        String response = this.sendPostRequest(this.create20API("brands"), value.toString());
         JSONObject key = new JSONObject(response);
         String keyValue = key.getString("data");
         return keyValue;
