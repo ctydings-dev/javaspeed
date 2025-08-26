@@ -36,9 +36,11 @@ public class CustomerCaller extends LightspeedCaller {
         return ret;
     }
 
-    public void addCustomer(Customer toAdd) throws IOException {
+    public String addCustomer(Customer toAdd) throws IOException {
         JSONObject value = toAdd.getCreateJSON();
-        this.sendPostRequest(this.create20API("customers"), value.toString());
-
+        String response = this.sendPostRequest(this.create20API("customers"), value.toString());
+        JSONObject key = new JSONObject(response);
+        String keyValue = key.getJSONArray("data").getString(0);
+        return keyValue;
     }
 }

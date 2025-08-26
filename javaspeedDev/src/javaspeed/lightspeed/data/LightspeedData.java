@@ -14,12 +14,12 @@ public abstract class LightspeedData {
 
     private String id;
 
-    public LightspeedData() {
-        this.id = "";
+    public LightspeedData(String key) {
+        this.id = key;
     }
 
-    public LightspeedData(String id) {
-        this.id = id;
+    public LightspeedData() {
+        this.id = "";
     }
 
     public String getId() {

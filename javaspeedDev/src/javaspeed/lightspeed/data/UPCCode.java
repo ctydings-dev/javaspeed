@@ -4,25 +4,19 @@
  */
 package javaspeed.lightspeed.data;
 
-import org.json.JSONObject;
-
 /**
  *
  * @author ctydi
  */
-public class Tag extends Category {
+public class UPCCode extends ProductCode {
 
-    public Tag() {
-        super();
+    public UPCCode() {
+        this.setType("UPC");
     }
 
-    public Tag(String key, String name) {
-        super(key, name);
-    }
-
-    @Override
-    public String objectName() {
-        return "TAG";
+    public UPCCode(String code) {
+        this.setType("UPC");
+        this.setCode(code);
     }
 
 }

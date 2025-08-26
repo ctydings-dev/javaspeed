@@ -24,9 +24,11 @@ public class Product extends SourcedData {
     private Double priceExcludingTax;
     private Double supplyPrice;
     private Inventory[] inventory;
+    private ProductCode[] codes;
 
     public Product() {
         this.inventory = new Inventory[0];
+        this.codes = new ProductCode[0];
     }
 
     public Supplier getSupplier() {
@@ -40,6 +42,15 @@ public class Product extends SourcedData {
         }
         toSet[toSet.length - 1] = toAdd;
         this.inventory = toSet;
+    }
+
+    public void addProductCode(ProductCode toAdd) {
+        ProductCode[] toSet = new ProductCode[this.codes.length + 1];
+        for (int index = 0; index < toSet.length - 1; index++) {
+            toSet[index] = this.codes[index];
+        }
+        toSet[toSet.length - 1] = toAdd;
+        this.codes = toSet;
     }
 
     public void setSupplier(Supplier supplier) {
@@ -137,20 +148,38 @@ public class Product extends SourcedData {
         if (!json.isNull("brand")) {
             this.getBrand().loadJSONData(json.getJSONObject("brand"));
         }
+        if (!json.isNull("product_codes")) {
+            JSONArray pcs = json.getJSONArray("product_codes");
+            this.codes = new ProductCode[pcs.length()];
+            for (int index = 0; index < this.codes.length; index++) {
+                ProductCode toSet = new ProductCode();
+                toSet.loadJSONData(pcs.getJSONObject(index));
+                this.codes[index] = toSet;
+
+            }
+
+        }
         this.sku = LightspeedDataParser.getJSONString(json, "sku");
     }
 
     @Override
     protected void addAdditionalJSONData(JSONObject json) {
-        json.put("category", this.getCategory().toJSON());
-        json.put("supplier", this.getSupplier().toJSON());
-        json.put("brand", this.getBrand());
+
+        LightspeedDataParser.setJSONJSON(json, "category", this.getCategory());
+        LightspeedDataParser.setJSONJSON(json, "supplier", this.getSupplier());
+        LightspeedDataParser.setJSONJSON(json, "brand", this.getBrand());
         LightspeedDataParser.setJSONString(json, "sku", this.getSku());
         JSONArray inven = new JSONArray(this.inventory.length);
 
         for (int index = 0; index < this.inventory.length; index++) {
             inven.put(index, this.inventory[index].toJSON());
         }
+
+        JSONArray pcs = new JSONArray(this.codes.length);
+        for (int index = 0; index < this.codes.length; index++) {
+            pcs.put(index, this.codes[index].toJSON());
+        }
+        json.put("product_codes", pcs);
     }
 
 }

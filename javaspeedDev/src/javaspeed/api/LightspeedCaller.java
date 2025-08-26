@@ -98,7 +98,7 @@ public abstract class LightspeedCaller {
 
     }
 
-    protected void sendPostRequest(String path, String JSON) throws MalformedURLException, IOException {
+    protected String sendPostRequest(String path, String JSON) throws MalformedURLException, IOException {
         final String charset = "UTF-8";
         String urlToRead;
         // Create the connection
@@ -127,11 +127,11 @@ public abstract class LightspeedCaller {
         StringBuffer response = new StringBuffer();
         List<String> ret = new ArrayList<String>();
         while ((inputLine = responseReader.readLine()) != null) {
-
             response.append(inputLine);
-
         }
+
         responseReader.close();
+        return response.toString();
 
     }
 

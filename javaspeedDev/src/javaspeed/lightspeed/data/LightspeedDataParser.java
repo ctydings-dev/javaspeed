@@ -48,4 +48,14 @@ public class LightspeedDataParser {
         return formatString(ret);
     }
 
+    public static void setJSONJSON(JSONObject toSet, String field, LightspeedData value) {
+        if (value == null) {
+            if (!ignoreNull) {
+                toSet.put(field, value);
+            }
+            return;
+        }
+        toSet.put(field, value.toJSON());
+    }
+
 }

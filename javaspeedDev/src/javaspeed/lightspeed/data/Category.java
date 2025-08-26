@@ -10,7 +10,15 @@ import org.json.JSONObject;
  *
  * @author ctydi
  */
-public class Category extends SourcedData {
+public class Category extends NamedData {
+
+    public Category() {
+
+    }
+
+    public Category(String key, String name) {
+        super(key, name);
+    }
 
     @Override
     public String objectName() {

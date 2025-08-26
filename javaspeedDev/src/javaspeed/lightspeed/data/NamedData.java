@@ -14,6 +14,16 @@ public abstract class NamedData extends LightspeedData {
 
     private String name;
 
+    public NamedData() {
+
+    }
+
+    public NamedData(String key, String name) {
+        super(key);
+        this.name = name;
+
+    }
+
     public String getName() {
         return name;
     }
