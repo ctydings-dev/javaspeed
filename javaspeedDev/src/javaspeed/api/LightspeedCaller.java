@@ -51,7 +51,7 @@ public class LightspeedCaller {
         String data = this.sendGetRequest(this.create09API("customers"), 1, 99999).get(0);
         JSONObject parsed = new JSONObject(data);
         JSONArray customers = parsed.getJSONArray("data");
-        List<Customer> ret = new ArrayList<String>();
+        List<Customer> ret = new ArrayList<>();
 
         for (int index = 0; index < customers.length(); index++) {
             Customer toAdd = new Customer();
