@@ -42,7 +42,7 @@ public class LightspeedDataParser {
 
     public static String getJSONString(JSONObject value, String field) {
         if (value.isNull(field)) {
-            return null;
+            return "";
         }
         String ret = value.getString(field);
         return formatString(ret);

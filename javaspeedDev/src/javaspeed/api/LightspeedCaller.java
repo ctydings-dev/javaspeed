@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,7 +49,7 @@ public class LightspeedCaller {
 
     public List<Customer> getCustomers() throws IOException {
 
-        String data = this.sendGetRequest(this.create09API("customers"), 1, 99999).get(0);
+        String data = this.sendGetRequest(this.create20API("customers"), 99999);
         JSONObject parsed = new JSONObject(data);
         JSONArray customers = parsed.getJSONArray("data");
         List<Customer> ret = new ArrayList<>();
@@ -59,6 +60,12 @@ public class LightspeedCaller {
             ret.add(toAdd);
         }
         return ret;
+    }
+
+    public void addCustomer(Customer toAdd) throws IOException {
+        JSONObject value = toAdd.getCreateJSON();
+        this.sendPostRequest(this.create20API("customers"), value.toString());
+
     }
 
     protected String createGetURL(String path, int page, int pageSize) {
@@ -77,12 +84,12 @@ public class LightspeedCaller {
         return ret;
     }
 
-    public List<String> sendGetRequest(String path, int page, int pageSize) throws MalformedURLException, IOException {
+    public String sendGetRequest(String path, int pageSize) throws MalformedURLException, IOException {
         final String charset = "UTF-8";
         String urlToRead;
         // Create the connection
 
-        String url = this.createGetURL(path, page, pageSize);
+        String url = this.createGetURL(path, 0, pageSize);
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Accept-Charset", charset);
@@ -99,14 +106,52 @@ public class LightspeedCaller {
 
         String inputLine;
         StringBuffer response = new StringBuffer();
+
+        String out = "";
+        while ((inputLine = responseReader.readLine()) != null) {
+            out = out + inputLine + "\n";
+            response.append(inputLine);
+
+        }
+        responseReader.close();
+        return out;
+
+    }
+
+    public void sendPostRequest(String path, String JSON) throws MalformedURLException, IOException {
+        final String charset = "UTF-8";
+        String urlToRead;
+        // Create the connection
+        HttpURLConnection connection = (HttpURLConnection) new URL(this.getURL() + "/" + path).openConnection();
+        // setDoOutput(true) implicitly set's the request type to POST
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Accept-Charset", charset);
+        connection.setRequestProperty("Content-type", "application/json");
+        connection.setRequestProperty("Authorization", "Bearer " + this.getToken());
+
+        try ( OutputStream os = connection.getOutputStream()) {
+            byte[] input = JSON.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        // Check the error stream first, if this is null then there have been no issues with the request
+        InputStream inputStream = connection.getErrorStream();
+        if (inputStream == null) {
+            inputStream = connection.getInputStream();
+        }
+
+        // Read everything from our stream
+        BufferedReader responseReader = new BufferedReader(new InputStreamReader(inputStream, charset));
+
+        String inputLine;
+        StringBuffer response = new StringBuffer();
         List<String> ret = new ArrayList<String>();
         while ((inputLine = responseReader.readLine()) != null) {
 
             response.append(inputLine);
-            ret.add(inputLine);
+
         }
         responseReader.close();
-        return ret;
 
     }
 
