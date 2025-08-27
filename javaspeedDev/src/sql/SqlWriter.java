@@ -21,6 +21,7 @@ import javaspeed.lightspeed.data.Brand;
 import javaspeed.lightspeed.data.Category;
 import javaspeed.lightspeed.data.Customer;
 import javaspeed.lightspeed.data.Product;
+import javaspeed.lightspeed.data.SerialNumber;
 import javaspeed.lightspeed.data.Supplier;
 import javaspeed.lightspeed.data.Tag;
 
@@ -90,7 +91,7 @@ public class SqlWriter {
             }
         }
 
-        String stmt = "INSERT INTO products(product_key, product_name, sku, category_id, cost, price, brand_id, supplier_id, barcode, is_active) VALUES('";
+        String stmt = "INSERT INTO products(is_equipment, product_key, product_name, sku, category_id, cost, price, brand_id, supplier_id, barcode, is_active,eve_id) VALUES(FALSE,'";
         stmt = stmt + toWrite.getId() + "','" + toWrite.getName() + "','" + toWrite.getSku() + "'," + cat + "," + toWrite.getSupplyPrice() + ",";
         stmt = stmt + toWrite.getPriceExcludingTax() + "," + brand + "," + sup + ",'" + barcode + "',";
         if (toWrite.isActive()) {
@@ -99,25 +100,91 @@ public class SqlWriter {
             stmt = stmt + "FALSE";
         }
 
-        stmt = stmt + ");";
+        stmt = stmt + ",'" + toWrite.getExternalKey() + "');";
+
+        try {
+            this.getStatement().execute(stmt);
+SerialNumber [] SNs = toWrite.getSerialNumbers();
+for(int index = 0; index < SNs.length; index++){
+    if(index == 0){
+        stmt = "UPDATE products SET is_equipment = TRUE WHERE sku = '" + toWrite.getSku() + "';";
         this.getStatement().execute(stmt);
+    }
+    
+    addEquipment(toWrite.getSku(),SNs[index], toWrite.getExternalKey());
+}
+            
+            
+            
+        } catch (Throwable e) {
+            System.out.println(stmt);
+            throw e;
+        }
 
     }
 
+    private void addEquipment(String sku, SerialNumber serial, String eve) throws SQLException{
+        String stmt = "SELECT customer_id FROM customers WHERE eve_id = '" + serial.getOwner() + "';";
+        ResultSet rs = this.getConnection().createStatement().executeQuery(stmt);
+       String customer = "0";
+        if(rs.next()){
+        customer = rs.getString("customer_id");
+        }
+        stmt = "INSERT INTO equipment(product_id, customer_id, serial_number, eve_id) SELECT product_id, '";
+        stmt = stmt + customer + "','"+ serial + "','" +eve + "' FROM products WHERE sku ='" + sku + "';";
+        this.getConnection().createStatement().execute(stmt);
+    }
+    
+    
+    
+    
+    
     public void writeCustomerToDB(Customer toWrite) throws SQLException {
-        String stmt = "INSERT INTO persons(customer_id, customer_code, first_name, last_name, street, city, state, country, post_code, email, phone) VALUES(";
+        String stmt = "INSERT INTO customers(customer_key, customer_code, first_name, last_name, street, city, state, country, post_code, email, phone,eve_id,date_of_birth) VALUES(";
 
-        String fName = toWrite.getFirstName().replace("'", "\\'");
-        String lName = toWrite.getLastName().replace("'", "\\'");
-        String street = toWrite.getPhysicalAddress1().replace("'", "\\'");
-        String email = toWrite.getEmail().replace("'", "\\'");
-        String phone = toWrite.getPhone().replace("'", "\\'");
+        String fName = "";
+        String lName = "";
+        String street = "";
+        String email = "";
+        String phone = "";
+        String bday = toWrite.getBirthday();
+
+        if (bday == null || bday.trim().equalsIgnoreCase("NULL")) {
+            bday = null;
+        }
+
+        if (toWrite.getFirstName() != null) {
+            fName = toWrite.getFirstName().replace("'", "\\'");
+        }
+        if (toWrite.getLastName() != null) {
+            lName = toWrite.getLastName().replace("'", "\\'");
+        }
+        if (toWrite.getPhysicalAddress1() != null) {
+            street = toWrite.getPhysicalAddress1().replace("'", "\\'");
+        }
+        if (toWrite.getEmail() != null) {
+            email = toWrite.getEmail().replace("'", "\\'");
+        }
+        if (toWrite.getPhone() != null) {
+            phone = toWrite.getPhone().replace("'", "\\'");
+        }
+
         stmt = stmt + "'" + toWrite.getId() + "','" + toWrite.getCode() + "','" + fName + "','" + lName + "','" + street;
-        stmt = stmt + "','" + toWrite.getPhysicalCity() + "','" + toWrite.getPhysicalState() + "','" + toWrite.getPhysicalCountry() + "','" + toWrite.getPhysicalPostCode() + "','" + email;
-        stmt = stmt + "','" + phone + "');";
+        stmt = stmt + "','" + toWrite.getPostalCity() + "','" + toWrite.getPostalState() + "','" + toWrite.getPostalCountry() + "','" + toWrite.getPostalPostCode() + "','" + email;
+        stmt = stmt + "','" + phone + "','" + toWrite.getCustom1() + "',";
+
+        if (bday == null) {
+            stmt = stmt + "NULL);";
+
+        } else {
+            stmt = stmt + "" + bday + ");";
+
+        }
+
         try {
             this.getStatement().execute(stmt);
         } catch (Throwable e) {
+            System.out.println(stmt);
             e.printStackTrace();
         }
     }
@@ -273,6 +340,17 @@ public class SqlWriter {
         return null;
     }
 
+    public Integer getCategoryByName(String key) {
+        for (Integer id : this.categories.keySet()) {
+            if (this.categories.get(id).getName().equals(key)) {
+                return id;
+            }
+
+        }
+
+        return null;
+    }
+
     public Integer getSupplierByKey(String key) {
         for (Integer id : this.suppliers.keySet()) {
             if (this.suppliers.get(id).getId().equals(key)) {
@@ -289,7 +367,7 @@ public class SqlWriter {
                 return id;
             }
         }
-        this.addSupplier(name);
+        this.addSupplier(name.replace("'", "\\'"));
 
         return this.getSupplierByName(name);
     }
@@ -316,7 +394,7 @@ public class SqlWriter {
         }
         this.addBrand(name);
 
-        return this.getBrandByName(name);
+        return this.getBrandByName(name.replace("'", "\\'"));
     }
 
     public Brand getBrand(Integer key) {
@@ -339,7 +417,7 @@ public class SqlWriter {
                 return id;
             }
         }
-        this.addTag(name);
+        this.addTag(name.replace("'", "\\'"));
 
         return this.getTagByName(name);
     }

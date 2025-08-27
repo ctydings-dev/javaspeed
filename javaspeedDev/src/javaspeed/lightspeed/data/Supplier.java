@@ -12,9 +12,19 @@ import org.json.JSONObject;
  */
 public class Supplier extends SourcedData {
 
+    private String code;
+    
     public Supplier() {
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+ 
     public Supplier(String key, String name) {
         this.setId(key);
         this.setName(name);
