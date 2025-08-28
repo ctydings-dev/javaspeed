@@ -32,6 +32,10 @@ public class Customer extends PostalAddressedData {
     private String mobile;
     private double loyaltyBalance;
 
+    public String getName(){
+        return this.getFirstName() + " " + this.getLastName();
+    }
+    
     public String getFirstName() {
         return firstName;
     }
@@ -40,6 +44,10 @@ public class Customer extends PostalAddressedData {
         return lastName;
     }
 
+    public void setId(String id){
+        super.setId(id);
+    }
+    
     public String getCode() {
         return code;
     }

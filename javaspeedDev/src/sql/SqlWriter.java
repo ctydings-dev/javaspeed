@@ -21,6 +21,8 @@ import javaspeed.lightspeed.data.Brand;
 import javaspeed.lightspeed.data.Category;
 import javaspeed.lightspeed.data.Customer;
 import javaspeed.lightspeed.data.Product;
+import javaspeed.lightspeed.data.Sale;
+import javaspeed.lightspeed.data.SaleItem;
 import javaspeed.lightspeed.data.SerialNumber;
 import javaspeed.lightspeed.data.Supplier;
 import javaspeed.lightspeed.data.Tag;
@@ -77,11 +79,11 @@ public class SqlWriter {
 
     }
 
-    public void writeProductToDB(Product toWrite) throws SQLException {
+    public void writeProductToDB(Product toWrite) throws SQLException, IOException {
 
         Integer cat = this.getCategoryByKey(toWrite.getCategory().getId());
-        Integer sup = this.getSupplierByKey(toWrite.getSupplier().getId());
-        Integer brand = this.getBrandByKey(toWrite.getBrand().getId());
+        Integer sup = this.getSupplierByName(toWrite.getSupplier().getName());
+        Integer brand = this.getBrandByName(toWrite.getBrand().getName());
 
         String barcode = "NA";
 
@@ -104,18 +106,16 @@ public class SqlWriter {
 
         try {
             this.getStatement().execute(stmt);
-SerialNumber [] SNs = toWrite.getSerialNumbers();
-for(int index = 0; index < SNs.length; index++){
-    if(index == 0){
-        stmt = "UPDATE products SET is_equipment = TRUE WHERE sku = '" + toWrite.getSku() + "';";
-        this.getStatement().execute(stmt);
-    }
-    
-    addEquipment(toWrite.getSku(),SNs[index], toWrite.getExternalKey());
-}
-            
-            
-            
+            SerialNumber[] SNs = toWrite.getSerialNumbers();
+            for (int index = 0; index < SNs.length; index++) {
+                if (index == 0) {
+                    stmt = "UPDATE products SET is_equipment = TRUE WHERE sku = '" + toWrite.getSku() + "';";
+                    this.getStatement().execute(stmt);
+                }
+
+                addEquipment(toWrite.getSku(), SNs[index], toWrite.getExternalKey());
+            }
+
         } catch (Throwable e) {
             System.out.println(stmt);
             throw e;
@@ -123,22 +123,18 @@ for(int index = 0; index < SNs.length; index++){
 
     }
 
-    private void addEquipment(String sku, SerialNumber serial, String eve) throws SQLException{
+    private void addEquipment(String sku, SerialNumber serial, String eve) throws SQLException {
         String stmt = "SELECT customer_id FROM customers WHERE eve_id = '" + serial.getOwner() + "';";
         ResultSet rs = this.getConnection().createStatement().executeQuery(stmt);
-       String customer = "0";
-        if(rs.next()){
-        customer = rs.getString("customer_id");
+        String customer = "0";
+        if (rs.next()) {
+            customer = rs.getString("customer_id");
         }
         stmt = "INSERT INTO equipment(product_id, customer_id, serial_number, eve_id) SELECT product_id, '";
-        stmt = stmt + customer + "','"+ serial + "','" +eve + "' FROM products WHERE sku ='" + sku + "';";
+        stmt = stmt + customer + "','" + serial + "','" + eve + "' FROM products WHERE sku ='" + sku + "';";
         this.getConnection().createStatement().execute(stmt);
     }
-    
-    
-    
-    
-    
+
     public void writeCustomerToDB(Customer toWrite) throws SQLException {
         String stmt = "INSERT INTO customers(customer_key, customer_code, first_name, last_name, street, city, state, country, post_code, email, phone,eve_id,date_of_birth) VALUES(";
 
@@ -316,19 +312,93 @@ for(int index = 0; index < SNs.length; index++){
     public void addSupplier(String name) throws IOException, SQLException {
         Supplier toAdd = new Supplier();
         toAdd.setName(name);
-        String key = this.getProductCaller().addSupplier(toAdd);
+        String key = "" + Math.random();
+        if(this.getProductCaller() != null){
+        key = this.getProductCaller().addSupplier(toAdd);
+        }
         String stmt = "INSERT INTO companies(company_name, company_key, is_supplier) VALUES ('";
         stmt = stmt + name + "','" + key + "', TRUE);";
+        this.executeStatement(stmt);
         this.loadSuppliers();
     }
 
     public void addBrand(String name) throws IOException, SQLException {
         Brand toAdd = new Brand();
         toAdd.setName(name);
-        String key = this.getProductCaller().addBrand(toAdd);
+        String key = "" + Math.random();
+        if(this.getProductCaller() != null){
+        key = this.getProductCaller().addBrand(toAdd);
+        }
         String stmt = "INSERT INTO companies(company_name, company_key, is_supplier) VALUES ('";
         stmt = stmt + name + "','" + key + "', FALSE);";
+        this.executeStatement(stmt);
         this.loadBrands();
+    }
+
+    private ResultSet executeQuery(String stmt) throws SQLException {
+        return this.getConnection().createStatement().executeQuery(stmt);
+    }
+
+    private void executeStatement(String stmt) throws SQLException {
+        this.getConnection().createStatement().execute(stmt);
+    }
+
+    
+    
+    
+public void addSale(Sale toAdd, String notes) throws SQLException {
+        String stmt = "SELECT customer_id FROM customers WHERE eve_id = '" + toAdd.getUserId() + "';";
+
+        ResultSet rs =this.executeQuery(stmt);
+        if(!rs.next()){
+            System.out.println("COULD NOT FIND EMPLOYEE : " + toAdd.getUserId());
+            System.exit(0);
+        }
+        
+        String employeeId = rs.getString("customer_id");
+        
+        stmt = "INSERT INTO sales(customer_id, register_id, employee_id, sale_date,";
+        stmt = stmt + " invoice, is_service,notes) VALUES (";
+
+        stmt = stmt + toAdd.getCustomer().getId() + ", " + toAdd.getRegisterId();
+        stmt = stmt + ", " + employeeId + ", '" + toAdd.getSaleDate();
+        stmt = stmt + "', " + toAdd.getInvoiceNumber() + ", FALSE, '" + notes + "');";
+        this.executeStatement(stmt);
+
+        SaleItem[] items = toAdd.getRegisterSaleProducts();
+
+        for (int index = 0; index < items.length; index++) {
+            this.addSaleItem(toAdd, items[index]);
+        }
+    }
+
+    private void addSaleItem(Sale sale, SaleItem toAdd) throws SQLException {
+        String stmt = "SELECT sale_id FROM sales WHERE invoice = '" + sale.getInvoiceNumber();
+        stmt = stmt + "';";
+        ResultSet rs = this.getConnection().createStatement().executeQuery(stmt);
+        if (!rs.next()) {
+            System.out.println("CANNOT FIND " + sale.getInvoiceNumber());
+            return;
+        }
+
+        String saleId = rs.getString("sale_id");
+      stmt = "SELECT product_id FROM products WHERE eve_id = " + toAdd.getProduct().getId() + " LIMIT 1;";
+      
+       rs = this.getConnection().createStatement().executeQuery(stmt);
+       String product = "0";
+       if(rs.next()){
+           product = rs.getString("product_id");
+       }
+        
+        
+        
+        
+        
+        
+
+        stmt = "INSERT INTO sale_items(sale_id, product_id, quantity, price)  VALUES(";
+        stmt = stmt + saleId + ", " + product + ", " + toAdd.getQuantity() + ", " + toAdd.getPrice() + ");";
+        this.getConnection().createStatement().execute(stmt);
     }
 
     public Integer getCategoryByKey(String key) {
@@ -361,6 +431,10 @@ for(int index = 0; index < SNs.length; index++){
     }
 
     public Integer getSupplierByName(String name) throws IOException, SQLException {
+        if(name == null){
+            name = "NA";
+        }
+        
         name = name.trim().toUpperCase();
         for (Integer id : this.suppliers.keySet()) {
             if (this.suppliers.get(id).getName().equalsIgnoreCase(name)) {
@@ -386,6 +460,10 @@ for(int index = 0; index < SNs.length; index++){
     }
 
     public Integer getBrandByName(String name) throws IOException, SQLException {
+        if(name == null){
+            name = "NA";
+        }
+        
         name = name.trim().toUpperCase();
         for (Integer id : this.brands.keySet()) {
             if (this.brands.get(id).getName().equalsIgnoreCase(name)) {

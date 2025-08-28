@@ -31,6 +31,17 @@ public class Product extends SourcedData {
     private String externalKey = "";
     
 
+    
+    public Product(String id){
+        this.setId(id);
+           this.inventory = new Inventory[0];
+        this.codes = new ProductCode[0];
+        this.supplier = new Supplier();
+        this.brand = new Brand();
+    this.tags = new Tag[0];
+    this.serialNumbers = new SerialNumber[0];
+    }
+    
     public Product() {
         this.inventory = new Inventory[0];
         this.codes = new ProductCode[0];
