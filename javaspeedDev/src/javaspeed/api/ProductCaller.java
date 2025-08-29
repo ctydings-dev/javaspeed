@@ -7,6 +7,7 @@ package javaspeed.api;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javaspeed.lightspeed.data.Brand;
 import javaspeed.lightspeed.data.Category;
 import javaspeed.lightspeed.data.Customer;
@@ -23,8 +24,11 @@ import org.json.JSONObject;
  */
 public class ProductCaller extends LightspeedCaller {
 
+    Map<String, Product> loadedProducts;
+    
     public ProductCaller(String url, String token) {
         super(url, token);
+        
     }
 
     public List<Product> getProducts() throws IOException {
@@ -38,15 +42,44 @@ public class ProductCaller extends LightspeedCaller {
             Product toAdd = new Product();
             toAdd.loadJSONData(customers.getJSONObject(index));
             ret.add(toAdd);
+            this.loadedProducts.put(toAdd.getId(), toAdd);
         }
         return ret;
     }
 
+    
+    public Product getProductBySku(String sku){
+        for(String id: this.loadedProducts.keySet())
+        {
+            Product toCheck = this.loadedProducts.get(id);
+            if(toCheck.getSku().equals(sku)){
+                return toCheck;
+            }
+        }
+        return null;
+        
+    }
+    
+    public boolean hasProductWithSku(String sku){
+        return this.getProductBySku(sku) != null;
+    }
+    
+    
+    
+    
     public String addProduct(Product toAdd) throws IOException {
+        
+        if(this.hasProductWithSku(toAdd.getSku()) ){
+            return toAdd.getId();
+        }
+        
+        
         JSONObject value = toAdd.getCreateJSON();
         String response = this.sendPostRequest(this.create20API("products"), value.toString());
         JSONObject key = new JSONObject(response);
         String keyValue = key.getJSONArray("data").getString(0);
+        toAdd.setId(keyValue);
+        this.loadedProducts.put(keyValue, toAdd);
         return keyValue;
     }
 

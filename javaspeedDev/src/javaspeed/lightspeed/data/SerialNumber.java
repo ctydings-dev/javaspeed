@@ -12,6 +12,9 @@ public class SerialNumber {
  
     public String number;
     public String owner;
+    public Outlet product;
+    public Outlet outlet;
+    
 
     public SerialNumber(String number, String owner) {
         this.number = number;

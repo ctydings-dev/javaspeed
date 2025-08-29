@@ -26,7 +26,8 @@ public abstract class LightspeedData {
         return id;
     }
 
-    protected void setId(String key) {
+    
+    public  void setId(String key) {
         this.id = key;
     }
 

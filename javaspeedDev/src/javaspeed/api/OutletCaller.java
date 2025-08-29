@@ -6,7 +6,9 @@ package javaspeed.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javaspeed.lightspeed.data.Outlet;
 import javaspeed.lightspeed.data.Product;
 import org.json.JSONArray;
@@ -18,8 +20,12 @@ import org.json.JSONObject;
  */
 public class OutletCaller extends LightspeedCaller {
 
+    
+    private Map<String,Outlet> loadedOutlets;
+    
     public OutletCaller(String url, String token) {
         super(url, token);
+        this.loadedOutlets = new HashMap();
     }
 
     public List<Outlet> getOutlets() throws IOException {
@@ -33,7 +39,25 @@ public class OutletCaller extends LightspeedCaller {
             Outlet toAdd = new Outlet();
             toAdd.loadJSONData(data.getJSONObject(index));
             ret.add(toAdd);
+            this.loadedOutlets.put(toAdd.getId(), toAdd);
         }
         return ret;
     }
+    
+    public Outlet getOutletByName(String name){
+        
+        for(String key : this.loadedOutlets.keySet()){
+            Outlet toCheck = this.loadedOutlets.get(key);
+        if(toCheck.getName().equals(name)){
+            return toCheck;
+        }
+        
+        }
+        
+        
+        return null;
+        
+    }
+    
+    
 }

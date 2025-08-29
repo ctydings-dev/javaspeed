@@ -503,5 +503,60 @@ public void addSale(Sale toAdd, String notes) throws SQLException {
     public Tag getTag(Integer key) {
         return this.tags.get(key);
     }
+    
+    
+    public void addServiceItem(String eveId, String invoice, String customer, String employee, String date, List<String> equipIds) throws SQLException{
+        
+        String stmt = "SELECT sale_id FROM sales WHERE invoice = " + invoice +";";
+        
+        invoice = "-1";
+        ResultSet rs = this.executeQuery(stmt);
+        if(rs.next()){
+            invoice = rs.getString("sale_id");
+        }
+        
+        stmt = "SELECT customer_id FROM customers WHERE eve_id = " + customer + ";";
+        rs = this.executeQuery(stmt);
+        rs.next();
+        customer = rs.getString("customer_id");
+        stmt = "SELECT customer_id FROM customers WHERE eve_id = " + employee+ ";";
+        rs = this.executeQuery(stmt);
+        
+        employee = rs.getString("customer_id");
+        
+        
+        
+        
+        stmt = "INSERT INTO services(invoice_id , customer_id, employee_id, service_date, eve_id) VALUES(";
+        stmt = stmt + invoice + "," + customer + "," + employee + ",'" + date + "'," + eveId + ");";
+        this.executeStatement(stmt);
+        
+        for(String id : equipIds){
+            
+            stmt = "SELECT equipment_id FROM equipment WHERE eve_id = '" + id + "' LIMIT 1;";
+            rs = this.executeQuery(stmt);
+            rs.next();
+            String equip = rs.getString("equipment_id");
+                        
+            stmt = "INSERT INTO service_items(service_id, equipment_id) SELECT service_id, ";
+            stmt = stmt + equip + " FROM services WHERE eve_id = '"+ eveId+"';";
+            this.executeStatement(stmt);
+            
+            
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    }
 
 }
