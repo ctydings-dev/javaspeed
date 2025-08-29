@@ -14,7 +14,7 @@ CREATE TABLE companies(company_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, compa
 CREATE TABLE categories(category_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, category_name VARCHAR(128), category_key VARCHAR(62) UNIQUE);
 CREATE TABLE tags(tag_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, tag_name VARCHAR(128) UNIQUE , tag_key VARCHAR(62) UNIQUE);
 
-CREATE TABLE sales(sale_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, customer_id VARCHAR(64) NOT NULL, register_id VARCHAR(32), employee_id VARCHAR(32), sale_date datetime, close_date DATETIME, invoice INT UNIQUE, is_service BOOLEAN, notes VARCHAR(128));
+CREATE TABLE sales(sale_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, customer_id VARCHAR(64) NOT NULL, register_id VARCHAR(32), employee_id VARCHAR(32), sale_date datetime, close_date DATETIME, invoice INT UNIQUE, is_service BOOLEAN, notes VARCHAR(256));
 CREATE TABLE sale_items(sale_item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, sale_id INT, product_id INT, quantity INT, price DOUBLE);
 
 CREATE TABLE services(service_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_id INT, customer_id INT, employee_id INT, service_date DATETIME, eve_id VARCHAR(32));

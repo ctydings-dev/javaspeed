@@ -55,9 +55,10 @@ public class Inventory extends LightspeedData {
     @Override
     protected void addAdditionalJSONData(JSONObject json) {
         LightspeedDataParser.setJSONString(json, "outlet_id", this.getOutletId());
-        LightspeedDataParser.setJSONString(json, "product_id", this.getProductId());
-        json.put("inventory_level", this.getInventory());
+        //   LightspeedDataParser.setJSONString(json, "product_id", this.getProductId());
+        // json.put("inventory_level", this.getInventory());
         json.put("current_amount", this.getInventory());
+        json.remove("id");
     }
 
 }

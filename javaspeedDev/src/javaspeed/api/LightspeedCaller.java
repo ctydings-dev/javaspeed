@@ -98,6 +98,40 @@ public abstract class LightspeedCaller {
 
     }
 
+    protected String sendGetRequest(String path) throws MalformedURLException, IOException {
+        final String charset = "UTF-8";
+        String urlToRead;
+        // Create the connection
+
+        String url = this.createGetURL(path, 0, 0);
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Accept-Charset", charset);
+        connection.setRequestProperty("Content-type", "application/json");
+        connection.setRequestProperty("Authorization", "Bearer " + this.getToken());
+        connection.setRequestMethod("GET");
+
+        InputStream inputStream = connection.getErrorStream();
+        if (inputStream == null) {
+            inputStream = connection.getInputStream();
+        }
+
+        BufferedReader responseReader = new BufferedReader(new InputStreamReader(inputStream, charset));
+
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        String out = "";
+        while ((inputLine = responseReader.readLine()) != null) {
+            out = out + inputLine + "\n";
+            response.append(inputLine);
+
+        }
+        responseReader.close();
+        return out;
+
+    }
+
     protected String sendPostRequest(String path, String JSON) throws MalformedURLException, IOException {
         final String charset = "UTF-8";
         String urlToRead;
@@ -133,6 +167,25 @@ public abstract class LightspeedCaller {
         responseReader.close();
         return response.toString();
 
+    }
+
+    public void deleteCall(String api, String item) throws MalformedURLException, IOException {
+        final String charset = "UTF-8";
+        String urlToRead;
+        String path = api + "/" + item;
+
+        // Create the connection
+        HttpURLConnection connection = (HttpURLConnection) new URL(this.getURL() + "/" + path).openConnection();
+        // setDoOutput(true) implicitly set's the request type to POST
+
+        connection.setRequestProperty("Accept-Charset", charset);
+        connection.setRequestProperty("Content-type", "application/json");
+        connection.setRequestProperty("authorization", "Bearer " + this.getToken());
+        connection.setRequestMethod("DELETE");
+
+        connection.connect();
+        int code = connection.getResponseCode();
+        String msg = connection.getResponseMessage();
     }
 
 }

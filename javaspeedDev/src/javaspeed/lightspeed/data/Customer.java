@@ -32,10 +32,10 @@ public class Customer extends PostalAddressedData {
     private String mobile;
     private double loyaltyBalance;
 
-    public String getName(){
+    public String getName() {
         return this.getFirstName() + " " + this.getLastName();
     }
-    
+
     public String getFirstName() {
         return firstName;
     }
@@ -44,10 +44,10 @@ public class Customer extends PostalAddressedData {
         return lastName;
     }
 
-    public void setId(String id){
+    public void setId(String id) {
         super.setId(id);
     }
-    
+
     public String getCode() {
         return code;
     }
@@ -227,6 +227,8 @@ public class Customer extends PostalAddressedData {
         LightspeedDataParser.setJSONString(json, "phone", this.getPhone());
         LightspeedDataParser.setJSONString(json, "mobile", this.getMobile());
         LightspeedDataParser.setJSONString(json, "email", this.getEmail());
+        LightspeedDataParser.setJSONString(json, "date_of_birth", this.getBirthday());
+        LightspeedDataParser.setJSONString(json, "custom_1", this.getCustom1());
 
     }
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javaspeed.lightspeed.data.Customer;
+import javaspeed.lightspeed.data.Product;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,12 +20,9 @@ import org.json.JSONObject;
  */
 public class CustomerCaller extends LightspeedCaller {
 
-    
-    private Map<String,Customer> loadedCustomers;
-    
+    private Map<String, Customer> loadedCustomers;
+
     //private Map<String,User> loadedUsers;
-    
-    
     public CustomerCaller(String url, String token) {
         super(url, token);
         this.loadedCustomers = new HashMap();
@@ -41,7 +39,7 @@ public class CustomerCaller extends LightspeedCaller {
             Customer toAdd = new Customer();
             toAdd.loadJSONData(customers.getJSONObject(index));
             ret.add(toAdd);
-        this.loadedCustomers.put(toAdd.getId(), toAdd);
+            this.loadedCustomers.put(toAdd.getId(), toAdd);
         }
         return ret;
     }
@@ -50,24 +48,37 @@ public class CustomerCaller extends LightspeedCaller {
         JSONObject value = toAdd.getCreateJSON();
         String response = this.sendPostRequest(this.create20API("customers"), value.toString());
         JSONObject key = new JSONObject(response);
-        String keyValue = key.getJSONArray("data").getString(0);
+
+        String keyValue = key.getJSONObject("data").getString("id");
         toAdd.setId(keyValue);
         this.loadedCustomers.put(keyValue, toAdd);
         return keyValue;
     }
-    
-    public Customer getCustomerByEveId(String eveId){
-        
-        for(String key : this.loadedCustomers.keySet()){
+
+    public Customer getCustomerByEveId(String eveId) {
+        for (String key : this.loadedCustomers.keySet()) {
             Customer toCheck = this.loadedCustomers.get(key);
-            if(toCheck.getCustom1() . equals(eveId)){
+            if (toCheck.getCustom1().equals(eveId)) {
                 return toCheck;
             }
         }
-        
-        
-        
         return null;
     }
-    
+
+    public void deleteCustomer(String customerId) throws IOException {
+        String path = this.create20API("customers");
+        deleteCall(path, customerId);
+    }
+
+    public void deleteAllCustomers() throws IOException {
+        List<Customer> customers = this.getCustomers();
+        int counter = 0;
+        for (Customer toDelete : customers) {
+            this.deleteCustomer(toDelete.getId());
+            counter++;
+            System.out.println("DELETEING " + toDelete.getId() + " : " + counter + " OF " + customers.size());
+        }
+
+    }
+
 }

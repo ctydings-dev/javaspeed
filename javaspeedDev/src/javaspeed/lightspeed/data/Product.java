@@ -25,30 +25,28 @@ public class Product extends SourcedData {
     private Double supplyPrice;
     private Inventory[] inventory;
     private ProductCode[] codes;
-    private SerialNumber [] serialNumbers;
+    private SerialNumber[] serialNumbers;
     private Tag[] tags;
     private int stock;
     private String externalKey = "";
-    
 
-    
-    public Product(String id){
+    public Product(String id) {
         this.setId(id);
-           this.inventory = new Inventory[0];
+        this.inventory = new Inventory[0];
         this.codes = new ProductCode[0];
         this.supplier = new Supplier();
         this.brand = new Brand();
-    this.tags = new Tag[0];
-    this.serialNumbers = new SerialNumber[0];
+        this.tags = new Tag[0];
+        this.serialNumbers = new SerialNumber[0];
     }
-    
+
     public Product() {
         this.inventory = new Inventory[0];
         this.codes = new ProductCode[0];
         this.supplier = new Supplier();
         this.brand = new Brand();
-    this.tags = new Tag[0];
-    this.serialNumbers = new SerialNumber[0];
+        this.tags = new Tag[0];
+        this.serialNumbers = new SerialNumber[0];
     }
 
     public String getExternalKey() {
@@ -59,27 +57,22 @@ public class Product extends SourcedData {
         this.externalKey = externalKey;
     }
 
-    public void addSerialNumber(String number, String owner){
-        SerialNumber toAdd = new SerialNumber(number,owner);
-        
-        
-        SerialNumber [] toRep = new SerialNumber[this.serialNumbers.length+1];
-        for(int index =0; index < this.serialNumbers.length; index++){
+    public void addSerialNumber(String number, String owner) {
+        SerialNumber toAdd = new SerialNumber(number, owner);
+
+        SerialNumber[] toRep = new SerialNumber[this.serialNumbers.length + 1];
+        for (int index = 0; index < this.serialNumbers.length; index++) {
             toRep[index] = this.serialNumbers[index];
-                    }
+        }
         toRep[this.serialNumbers.length] = toAdd;
         this.serialNumbers = toRep;
-        
+
     }
 
-    public SerialNumber [] getSerialNumbers() {
+    public SerialNumber[] getSerialNumbers() {
         return serialNumbers;
     }
-    
-    
-    
-    
-    
+
     public Supplier getSupplier() {
         return supplier;
     }
@@ -106,11 +99,11 @@ public class Product extends SourcedData {
         this.supplier = supplier;
     }
 
-        public void setSupplier(String supplierName) {
-            Supplier toSet = new Supplier();
-            toSet.setName(supplierName);
-            this.setSupplier(toSet);
-            
+    public void setSupplier(String supplierName) {
+        Supplier toSet = new Supplier();
+        toSet.setId(supplierName);
+        this.setSupplier(toSet);
+
     }
 
     public int getStock() {
@@ -120,18 +113,16 @@ public class Product extends SourcedData {
     public void setStock(int stock) {
         this.stock = stock;
     }
-    
-    
-    public void setStock(String stock){
-        if(stock == null || stock.trim().length() < 1){
+
+    public void setStock(String stock) {
+        if (stock == null || stock.trim().length() < 1) {
             return;
         }
-        
-       this.stock =  Integer.parseInt(stock);
-        
+
+        this.stock = Integer.parseInt(stock);
+
     }
-    
-    
+
     public ProductCode[] getCodes() {
         return codes;
     }
@@ -139,34 +130,28 @@ public class Product extends SourcedData {
     public Tag[] getTags() {
         return tags;
     }
-    
-    public void addTag(Tag toAdd){
-        Tag [] rep = new Tag[this.tags.length + 1];
-        
-        for(int index =0; index < this.tags.length - 1; index++){
+
+    public void addTag(Tag toAdd) {
+        Tag[] rep = new Tag[this.tags.length + 1];
+
+        for (int index = 0; index < this.tags.length - 1; index++) {
             rep[index] = this.tags[index];
         }
-        
+
         rep[rep.length - 1] = toAdd;
         this.tags = rep;
-        
+
     }
-    
-    
-    
-    public void addTag(String tag){
-        
-        if(tag == null || tag.equalsIgnoreCase("NULL"))
-        {
+
+    public void addTag(String tag) {
+
+        if (tag == null || tag.equalsIgnoreCase("NULL")) {
             return;
         }
         Tag toAdd = new Tag();
         toAdd.setName(tag);
         this.addTag(toAdd);
     }
-    
-    
-    
 
     public Brand getBrand() {
         return brand;
@@ -176,15 +161,13 @@ public class Product extends SourcedData {
         this.brand = brand;
     }
 
-    public void setBrand(String brandName){
+    public void setBrand(String brandName) {
         Brand toSet = new Brand();
-        toSet.setName(brandName);
+        toSet.setId(brandName);
         this.setBrand(toSet);
-        
-        
+
     }
-    
-    
+
     public Category getCategory() {
         return category;
     }
@@ -192,13 +175,12 @@ public class Product extends SourcedData {
     public void setCategory(Category category) {
         this.category = category;
     }
-    
-    public void setCategory(String catName){
-           Category productCategory = new Category();
-                       productCategory.setName(catName);
-                       this.setCategory(productCategory);
+
+    public void setCategory(String catName) {
+        Category productCategory = new Category();
+        productCategory.setId(catName);
+        this.setCategory(productCategory);
     }
-    
 
     public String getSku() {
         return sku;
@@ -239,18 +221,14 @@ public class Product extends SourcedData {
     public void setPriceExcludingTax(Double priceExcludingTax) {
         this.priceExcludingTax = priceExcludingTax;
     }
-    
-        public void setPriceExcludingTax(String priceExcludingTax) {
-            if(priceExcludingTax == null || priceExcludingTax.trim().length() < 1){
-                return;
-            }
-            
-            
+
+    public void setPriceExcludingTax(String priceExcludingTax) {
+        if (priceExcludingTax == null || priceExcludingTax.trim().length() < 1) {
+            return;
+        }
+
         this.priceExcludingTax = Double.parseDouble(priceExcludingTax);
     }
-    
-    
-    
 
     public Double getSupplyPrice() {
         return supplyPrice;
@@ -260,18 +238,14 @@ public class Product extends SourcedData {
         this.supplyPrice = supplyPrice;
     }
 
-      public void setSupplyPrice(String supplyPrice) {
-          if(supplyPrice == null || supplyPrice.trim().length() < 1){
-              return;
-          }
-          
+    public void setSupplyPrice(String supplyPrice) {
+        if (supplyPrice == null || supplyPrice.trim().length() < 1) {
+            return;
+        }
+
         this.supplyPrice = Double.parseDouble(supplyPrice);
     }
 
-    
-    
-    
-    
     public Inventory[] getInventory() {
         return inventory;
     }
@@ -285,17 +259,14 @@ public class Product extends SourcedData {
         return "PRODUCT";
     }
 
-    public String getSupplierCode(){
-        
-        if(this.getSupplier() == null){
+    public String getSupplierCode() {
+
+        if (this.getSupplier() == null) {
             return null;
         }
         return this.getSupplier().getCode();
     }
-    
-    
-    
-    
+
     @Override
     protected void loadAdditionalJSONData(JSONObject json) {
         this.setCategory(new Category());
@@ -336,21 +307,38 @@ public class Product extends SourcedData {
     @Override
     protected void addAdditionalJSONData(JSONObject json) {
 
-        LightspeedDataParser.setJSONJSON(json, "category", this.getCategory());
-        LightspeedDataParser.setJSONJSON(json, "supplier", this.getSupplier());
+        LightspeedDataParser.setJSONString(json, "product_category_id", this.getCategory().getId());
+        LightspeedDataParser.setJSONString(json, "supplier_id", this.getSupplier().getId());
         LightspeedDataParser.setJSONString(json, "supplier_code", this.getSupplierCode());
-        LightspeedDataParser.setJSONJSON(json, "brand", this.getBrand());
+        LightspeedDataParser.setJSONString(json, "brand_id", this.getBrand().getId());
         LightspeedDataParser.setJSONString(json, "sku", this.getSku());
+        LightspeedDataParser.setJSONDouble(json, "price_excluding_tax", this.getPriceExcludingTax());
+        LightspeedDataParser.setJSONDouble(json, "price_including_tax", this.getPriceIncludingTax());
+        LightspeedDataParser.setJSONDouble(json, "supply_price", this.getSupplyPrice());
         JSONArray inven = new JSONArray(this.inventory.length);
 
         for (int index = 0; index < this.inventory.length; index++) {
-            inven.put(index, this.inventory[index].toJSON());
+            JSONObject invenToPut = this.inventory[index].toJSON();
+            inven.put(index, invenToPut);
         }
 
+        json.put("inventory", inven);
         JSONArray pcs = new JSONArray(this.codes.length);
         for (int index = 0; index < this.codes.length; index++) {
             pcs.put(index, this.codes[index].toJSON());
         }
+        if (this.getUpc() != null) {
+            UPCCode upc = new UPCCode(this.getUpc());
+            pcs.put(this.codes.length, upc.toJSON());
+        }
+
+        JSONArray tags = new JSONArray(this.tags.length);
+        for (int index = 0; index < this.tags.length; index++) {
+
+            tags.put(index, this.tags[index].getId());
+        }
+
+        // json.put("tag_ids", tags);
         json.put("product_codes", pcs);
     }
 

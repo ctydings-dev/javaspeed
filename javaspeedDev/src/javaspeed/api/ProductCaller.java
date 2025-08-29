@@ -6,6 +6,7 @@ package javaspeed.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javaspeed.lightspeed.data.Brand;
@@ -13,6 +14,7 @@ import javaspeed.lightspeed.data.Category;
 import javaspeed.lightspeed.data.Customer;
 import javaspeed.lightspeed.data.Inventory;
 import javaspeed.lightspeed.data.Product;
+import javaspeed.lightspeed.data.SerialNumber;
 import javaspeed.lightspeed.data.Supplier;
 import javaspeed.lightspeed.data.Tag;
 import org.json.JSONArray;
@@ -25,14 +27,18 @@ import org.json.JSONObject;
 public class ProductCaller extends LightspeedCaller {
 
     Map<String, Product> loadedProducts;
-    
-    public ProductCaller(String url, String token) {
+
+    List<Tag> loadedTags;
+
+    public ProductCaller(String url, String token) throws IOException {
         super(url, token);
-        
+        this.loadedProducts = new HashMap();
+        this.loadedTags = this.getProductTags();
+
     }
 
     public List<Product> getProducts() throws IOException {
-
+        this.loadedProducts = new HashMap();
         String data = this.sendGetRequest(this.create20API("products"), 99999);
         JSONObject parsed = new JSONObject(data);
         JSONArray customers = parsed.getJSONArray("data");
@@ -47,39 +53,59 @@ public class ProductCaller extends LightspeedCaller {
         return ret;
     }
 
-    
-    public Product getProductBySku(String sku){
-        for(String id: this.loadedProducts.keySet())
-        {
+    public Product getProductBySku(String sku) {
+        for (String id : this.loadedProducts.keySet()) {
             Product toCheck = this.loadedProducts.get(id);
-            if(toCheck.getSku().equals(sku)){
+            if (toCheck.getSku().equals(sku)) {
                 return toCheck;
             }
         }
         return null;
-        
+
     }
-    
-    public boolean hasProductWithSku(String sku){
+
+    public List<String> getSerialNumbers() throws IOException {
+        this.loadedProducts = new HashMap();
+        String data = this.sendGetRequest(this.create20API("serialnumbers"));
+        JSONObject parsed = new JSONObject(data);
+        JSONArray customers = parsed.getJSONArray("data");
+        List<String> ret = new ArrayList<>();
+
+        for (int index = 0; index < customers.length(); index++) {
+
+            ret.add(customers.getJSONObject(index).getString("id"));
+
+        }
+        return ret;
+    }
+
+    public boolean hasProductWithSku(String sku) {
         return this.getProductBySku(sku) != null;
     }
-    
-    
-    
-    
+
     public String addProduct(Product toAdd) throws IOException {
-        
-        if(this.hasProductWithSku(toAdd.getSku()) ){
+
+        if (this.hasProductWithSku(toAdd.getSku())) {
             return toAdd.getId();
         }
-        
-        
+
         JSONObject value = toAdd.getCreateJSON();
         String response = this.sendPostRequest(this.create20API("products"), value.toString());
         JSONObject key = new JSONObject(response);
         String keyValue = key.getJSONArray("data").getString(0);
         toAdd.setId(keyValue);
         this.loadedProducts.put(keyValue, toAdd);
+        return keyValue;
+    }
+
+    public String addSerialNumber(SerialNumber toAdd) throws IOException {
+
+        JSONObject value = toAdd.getCreateJSON();
+        String response = this.sendPostRequest(this.create20API("serialnumbers"), value.toString());
+        JSONObject key = new JSONObject(response);
+        String keyValue = key.getJSONObject("data").getString("id");
+        toAdd.setId(keyValue);
+
         return keyValue;
     }
 
@@ -157,6 +183,38 @@ public class ProductCaller extends LightspeedCaller {
         return ret;
     }
 
+    public void deleteProduct(String productId) throws IOException {
+        this.loadedProducts.remove(productId);
+        System.out.println("DELETEING " + productId);
+        String path = this.create20API("products");
+        deleteCall(path, productId);
+    }
+
+    public void deleteSerialNumber(String productId) throws IOException {
+        System.out.println("DELETEING " + productId);
+        String path = this.create20API("serialnumbers");
+        deleteCall(path, productId);
+    }
+
+    public void deleteAllSerialNumbers() throws IOException {
+        List<String> SNs = this.getSerialNumbers();
+
+        for (String id : SNs) {
+            this.deleteSerialNumber(id);
+        }
+
+    }
+
+    public void deleteAllProducts() throws IOException {
+        List<Product> products = this.getProducts();
+        int counter = 0;
+        for (Product toDelete : products) {
+            this.deleteProduct(toDelete.getId());
+            counter++;
+            System.out.println("DELETEING " + toDelete.getId() + " : " + counter + " OF " + products.size());
+        }
+    }
+
     public List<Inventory> getInventories() throws IOException {
 
         String data = this.sendGetRequest(this.create20API("inventory"), 99999);
@@ -195,6 +253,20 @@ public class ProductCaller extends LightspeedCaller {
         JSONObject key = new JSONObject(response);
         String keyValue = key.getString("data");
         return keyValue;
+    }
+
+    public Tag getTagByName(String name) {
+
+        name = name.trim();
+
+        for (Tag toCheck : this.loadedTags) {
+            if (toCheck.getName().equalsIgnoreCase(name)) {
+                return toCheck;
+            }
+
+        }
+
+        return null;
     }
 
 }

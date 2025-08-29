@@ -65,6 +65,7 @@ public abstract class PostalAddressedData extends AddressedData {
         LightspeedDataParser.setJSONString(json, "ppstal_address_2", this.getPostalAddress2());
         LightspeedDataParser.setJSONString(json, "postal_suburb", this.getPostalSuburb());
         LightspeedDataParser.setJSONString(json, "postal_state", this.getPostalState());
+        LightspeedDataParser.setJSONString(json, "postal_city", this.getPostalCity());
         LightspeedDataParser.setJSONString(json, "postal_country_id", this.getPostalCountry());
         LightspeedDataParser.setJSONString(json, "postal_postcode", this.getPostalPostCode());
         return json;
