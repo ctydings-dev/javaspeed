@@ -10,14 +10,14 @@ import org.json.JSONObject;
  *
  * @author rfancher
  */
-public class SaleItem extends LightspeedData{
- 
-   private Product product;
-    
+public class SaleItem extends LightspeedData {
+
+    private Product product;
+
     private String regsterId;
-    
+
     private int quantity;
-    
+
     private double price;
     private double cost;
 
@@ -52,11 +52,10 @@ public class SaleItem extends LightspeedData{
     public void setCost(double cost) {
         this.cost = cost;
     }
-    
 
     @Override
     public String objectName() {
- return "SALE_ITEM";
+        return "SALE_ITEM";
     }
 
     public Product getProduct() {
@@ -67,12 +66,6 @@ public class SaleItem extends LightspeedData{
         this.product = product;
     }
 
-    
-
-    
-    
-    
-    
     @Override
     protected void loadAdditionalJSONData(JSONObject json) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -80,9 +73,13 @@ public class SaleItem extends LightspeedData{
 
     @Override
     protected void addAdditionalJSONData(JSONObject json) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        json.put("product_id", this.getProduct().getId());
+        json.put("price", this.getPrice());
+        json.put("cost", this.getCost());
+        json.put("quantity", this.getQuantity());
+        json.put("tax", 0);
+        json.put("tax_id", CommonKeys.NO_TAX_ID);
+
     }
-    
-    
-    
+
 }

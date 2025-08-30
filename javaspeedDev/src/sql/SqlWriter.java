@@ -29,6 +29,8 @@ import javaspeed.lightspeed.data.SaleItem;
 import javaspeed.lightspeed.data.SerialNumber;
 import javaspeed.lightspeed.data.Supplier;
 import javaspeed.lightspeed.data.Tag;
+import javaspeed.lightspeed.data.User;
+import org.json.JSONObject;
 
 /**
  *
@@ -206,14 +208,28 @@ public class SqlWriter {
     }
 
     public void loadCategoriesToDB() throws IOException, SQLException {
-        String stmt = "DELETE FROM categories;";
-        this.getStatement().execute(stmt);
+        //  String stmt = "DELETE FROM categories;";
+        //  this.getStatement().execute(stmt);
         List<Category> categories = this.getProductCaller().getProductCategories();
         for (Category entry : categories) {
-            String toAdd = "INSERT INTO categories(category_name, category_key) VALUES ('";
-            toAdd = toAdd + entry.getName().replace("'", "\\'") + "','" + entry.getId() + "');";
+            String name = entry.getName().replace("'", "\\'");
+            String sub = "SELECT COUNT(*) FROM categories WHERE category_name ='" + name;
+            sub = sub + "';";
+            ResultSet rs = this.executeQuery(sub);
 
-            this.getStatement().execute(toAdd);
+            rs.next();
+            if (rs.getInt(1) < 1) {
+
+                String toAdd = "INSERT INTO categories(category_name) VALUES ('";
+                toAdd = toAdd + name + "');";
+
+                this.getStatement().execute(toAdd);
+            }
+
+            String stmt = "UPDATE categories SET category_key = '" + entry.getId();
+            stmt = stmt + "' WHERE category_name = '" + name + "';";
+            this.executeStatement(stmt);
+
         }
 
     }
@@ -259,49 +275,69 @@ public class SqlWriter {
     }
 
     public void loadTagsToDB() throws IOException, SQLException {
-        String stmt = "DELETE FROM tags;";
-        this.getStatement().execute(stmt);
         List<Tag> categories = this.getProductCaller().getProductTags();
-        categories.forEach(entry -> {
-            String toAdd = "INSERT INTO tags(tag_name, tag_key) VALUES ('";
-            toAdd = toAdd + entry.getName().replace("'", "\\'") + "','" + entry.getId() + "');";
-            try {
+        for (Tag entry : categories) {
+            String name = entry.getName().replace("'", "\\'");
+            String stmt = "SELECT COUNT(*) FROM tags WHERE tag_name = '" + name + "';";
+            ResultSet rs = this.executeQuery(stmt);
+            rs.next();
+            if (rs.getInt(1) < 1) {
+                String toAdd = "INSERT INTO tags(tag_name, tag_key) VALUES ('";
+                toAdd = toAdd + entry.getName().replace("'", "\\'") + "','" + entry.getId() + "');";
+
                 this.getStatement().execute(toAdd);
-            } catch (SQLException ex) {
-                Logger.getLogger(SqlWriter.class.getName()).log(Level.SEVERE, null, ex);
+            } else {
+                stmt = "UPDATE tags SET tag_key = '" + entry.getId() + "' WHERE tag_name ='";
+                stmt = stmt + name + "';";
+                this.executeStatement(stmt);
             }
-        });
+
+        }
         this.loadTags();
     }
 
     public void loadSuppliersToDB() throws IOException, SQLException {
-        String stmt = "DELETE FROM suppliers;";
-        this.getStatement().execute(stmt);
+
         List<Supplier> sups = this.getProductCaller().getSuppliers();
-        sups.forEach(entry -> {
-            String toAdd = "INSERT INTO suppliers(supplier_name, supplier_key) VALUES ('";
-            toAdd = toAdd + entry.getName().replace("'", "\\'") + "','" + entry.getId() + "');";
-            try {
+        for (Supplier entry : sups) {
+            String name = entry.getName().replace("'", "\\'");
+            String stmt = "SELECT COUNT(*) FROM suppliers WHERE supplier_name = '" + name;
+            stmt = stmt + "';";
+            ResultSet rs = this.executeQuery(stmt);
+            rs.next();
+            if (rs.getInt(1) < 1) {
+                String toAdd = "INSERT INTO suppliers(supplier_name, supplier_key) VALUES ('";
+                toAdd = toAdd + name + "','" + entry.getId() + "');";
                 this.getStatement().execute(toAdd);
-            } catch (SQLException ex) {
-                Logger.getLogger(SqlWriter.class.getName()).log(Level.SEVERE, null, ex);
+            } else {
+                stmt = "UPDATE suppliers SET supplier_key = '" + entry.getId();
+                stmt = stmt + "' WHERE supplier_name ='" + name + "';";
+                this.executeStatement(stmt);
             }
-        });
-        this.loadTags();
+
+        }
     }
 
     public void loadBrandsToDB() throws IOException, SQLException {
         List<Brand> sups = this.getProductCaller().getBrands();
-        sups.forEach(entry -> {
-            String toAdd = "INSERT INTO brands(brand_name, brand_key) VALUES ('";
-            toAdd = toAdd + entry.getName().replace("'", "\\'") + "','" + entry.getId() + "');";
-            try {
+        for (Brand entry : sups) {
+            String name = entry.getName().replace("'", "\\'");
+            String stmt = "SELECT COUNT(*) FROM brands WHERE brand_name ='";
+            stmt = stmt + name + "';";
+            ResultSet rs = this.executeQuery(stmt);
+            rs.next();
+            if (rs.getInt(1) < 1) {
+                String toAdd = "INSERT INTO brands(brand_name, brand_key) VALUES ('";
+                toAdd = toAdd + name + "','" + entry.getId() + "');";
+
                 this.getStatement().execute(toAdd);
-            } catch (SQLException ex) {
-                Logger.getLogger(SqlWriter.class.getName()).log(Level.SEVERE, null, ex);
+            } else {
+                stmt = "UPDATE brands SET brand_key = '" + entry.getId() + "' ";
+                stmt = stmt + " WHERE brand_name = '" + name + "';";
+                this.executeStatement(stmt);
+
             }
-        });
-        this.loadTags();
+        }
     }
 
     public void addTag(String category) throws IOException, SQLException {
@@ -540,7 +576,7 @@ public class SqlWriter {
     }
 
     public void uploadCustomersToLightspeed() throws SQLException, IOException {
-        String stmt = "SELECT * FROM customers;";
+        String stmt = "SELECT * FROM customers WHERE customer_key IS NULL;";
 
         ResultSet rs = this.executeQuery(stmt);
 
@@ -563,9 +599,10 @@ public class SqlWriter {
     }
 
     public void uploadProductsToLightspeed(String outletId, String userId) throws SQLException, IOException {
+        this.setProductKeys();
         String stmt = "SELECT * FROM products AS pro INNER JOIN categories AS cat ON pro.category_id ="
                 + " cat.category_id INNER JOIN suppliers AS sup on sup.supplier_id = pro.supplier_id INNER JOIN"
-                + " brands AS brand ON pro.brand_id = brand.brand_id WHERE is_active = TRUE;";
+                + " brands AS brand ON pro.brand_id = brand.brand_id WHERE is_active = TRUE AND product_key IS NULL ORDER BY sku ASC;";
         ResultSet rs = this.executeQuery(stmt);
 
         while (rs.next()) {
@@ -574,9 +611,11 @@ public class SqlWriter {
             String sku = rs.getString("sku");
             String barcode = rs.getString("barcode");
             String supplier = rs.getString("supplier_key");
-
+            boolean active = rs.getBoolean("is_active");
             String brand = rs.getString("brand_key");
             int stock = rs.getInt("stock");
+            int sold = rs.getInt("sold");
+            stock += sold;
             double price = rs.getDouble("price");
             double cost = rs.getDouble("cost");
             String cat = rs.getString("category_key");
@@ -596,13 +635,22 @@ public class SqlWriter {
             toAdd.setSku(sku);
             toAdd.setPriceExcludingTax(price);
             toAdd.setSupplyPrice(cost);
-            this.productCaller.addProduct(toAdd);
+            toAdd.setActive(active);
+
+            String productId = this.productCaller.addProduct(toAdd);
+            String update = "UPDATE products SET product_key = '" + productId + "'";
+            update = update + " WHERE sku ='" + toAdd.getSku() + "';";
+            this.executeStatement(update);
         }
 
     }
 
     public void uploadEquipmentToLightspeed(String outletId, String userId) throws SQLException, IOException {
-        String stmt = "SELECT * FROM products AS pro INNER JOIN categories AS cat ON pro.category_id = cat.category_id INNER JOIN suppliers AS sup on sup.supplier_id = pro.supplier_id INNER JOIN brands AS brand ON pro.brand_id = brand.brand_id INNER JOIN equipment AS equip ON pro.product_id = equip.product_id;";
+        String stmt = "SELECT * FROM products AS pro INNER JOIN categories AS cat ON "
+                + "pro.category_id = cat.category_id INNER JOIN suppliers AS sup ON"
+                + " sup.supplier_id = pro.supplier_id INNER JOIN brands AS brand ON"
+                + " pro.brand_id = brand.brand_id INNER JOIN equipment AS equip ON pro.product_id = "
+                + "equip.product_id ORDER BY pro.sku ASC;";
         ResultSet rs = this.executeQuery(stmt);
         Outlet outletToUse = new Outlet();
         outletToUse.setId(outletId);
@@ -640,19 +688,102 @@ public class SqlWriter {
 
             Tag rental = this.productCaller.getTagByName("RENTAL");
             if (rs.getBoolean("is_rental")) {
-                toAdd.addTag(cat);
+                toAdd.addTag(rental);
             }
-
-            String productId = this.productCaller.addProduct(toAdd);
-
+            String productId = rs.getString("product_key");
+            if (productId == null) {
+                productId = this.productCaller.addProduct(toAdd);
+            }
+            String update = "UPDATE products SET product_key = '" + productId + "'";
+            update = update + " WHERE sku ='" + toAdd.getSku() + "';";
+            this.executeStatement(update);
             Product productToSet = new Product();
             productToSet.setId(productId);
+            String eqId = rs.getString("equipment_id");
             if (sn != null) {
                 SerialNumber snToAdd = new SerialNumber(sn);
                 snToAdd.setProduct(productToSet);
                 snToAdd.setOutlet(outletToUse);
-                this.productCaller.addSerialNumber(snToAdd);
+                String snId = this.productCaller.addSerialNumber(snToAdd);
+
+                update = "UPDATE equipment SET sn_key ='" + snId + "' WHERE equipment_id = " + eqId + ";";
+                this.executeStatement(update);
             }
+        }
+
+    }
+
+    public void uploadSales(String register, String outlet) throws SQLException {
+        String stmt = "SELECT sl.sale_id AS sale_id, sl.invoice AS invoice , sl.sale_date AS sale_date, cus.customer_key AS cust_key, usr.customer_key AS user_key, sl.notes AS notes FROM sales AS sl INNER JOIN customers AS cus ON sl.customer_id = cus.customer_id INNER JOIN customers AS usr ON sl.employee_id = usr.customer_id WHERE is_service = FALSE;";
+        ResultSet saleSet = this.executeQuery(stmt);
+        while (saleSet.next()) {
+
+            String invoice = saleSet.getString("invoice");
+            String date = saleSet.getString("sale_date");
+            String custId = saleSet.getString("cust_key");
+            String userId = saleSet.getString("user_key");
+            String notes = saleSet.getString("notes");
+            Sale toAdd = new Sale();
+            toAdd.setInvoiceNumber(invoice);
+            Customer cust = new Customer();
+            cust.setId(custId);
+            toAdd.setCustomer(cust);
+            toAdd.setUserId(userId);
+            toAdd.setSaleDate(date);
+            toAdd.setRegisterId(register);
+            String id = saleSet.getString("sale_id");
+            String sub = "SELECT * FROM sale_items AS si INNER JOIN products AS pro ON si.product_id = pro.product_id WHERE si.sale_id = " + id + ";";
+            ResultSet itemSet = this.executeQuery(sub);
+            while (itemSet.next()) {
+                Product prod = new Product();
+                prod.setId(itemSet.getString("product_key"));
+                SaleItem item = new SaleItem();
+                item.setProduct(prod);
+                item.setCost(itemSet.getDouble("cost"));
+                item.setPrice(itemSet.getDouble("price"));
+                item.setQuantity(itemSet.getInt("quantity"));
+
+                toAdd.addSaleItem(item);
+            }
+            JSONObject data = toAdd.toJSON();
+            data.remove("id");
+
+            String out = data.toString();
+            System.out.println(out);
+        }
+
+    }
+
+    public void setUserKeys() throws IOException, SQLException {
+        for (User entry : this.customerCaller.getUsers()) {
+
+            String stmt = "UPDATE customers SET user_key ='" + entry.getId();
+            stmt = stmt + "' WHERE customer_code ='" + entry.getUsername() + "'";
+            this.executeStatement(stmt);
+
+        }
+
+    }
+
+    public void setProductKeys() throws IOException, SQLException {
+        String stmt = "UPDATE products SET product_key = NULL;";
+        this.executeStatement(stmt);
+
+        for (Product entry : this.productCaller.getProducts()) {
+            stmt = "UPDATE products SET product_key = '" + entry.getId();
+            stmt = stmt + "' WHERE sku ='" + entry.getSku() + "';";
+            this.executeStatement(stmt);
+        }
+    }
+
+    public void setCustomerKeys() throws SQLException, IOException {
+        String stmt = "UPDATE customers SET customer_key = NULL";
+        this.executeStatement(stmt);
+
+        for (Customer entry : this.customerCaller.getCustomers()) {
+            stmt = "UPDATE customers SET customer_key = '" + entry.getId() + "'";
+            stmt = stmt + " WHERE customer_code ='" + entry.getCode() + "'";
+            this.executeStatement(stmt);
         }
 
     }

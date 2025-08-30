@@ -338,7 +338,12 @@ public class Product extends SourcedData {
             tags.put(index, this.tags[index].getId());
         }
 
-        // json.put("tag_ids", tags);
+        json.put("is_active", false);
+        if (this.isActive()) {
+            json.put("is_active", true);
+        }
+
+        json.put("tag_ids", tags);
         json.put("product_codes", pcs);
     }
 

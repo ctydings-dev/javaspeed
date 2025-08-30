@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javaspeed.lightspeed.data.CommonKeys;
 import javaspeed.lightspeed.data.Customer;
 import javaspeed.lightspeed.data.Product;
 import org.json.*;
@@ -46,6 +47,23 @@ public abstract class LightspeedCaller {
 
     protected String create09API(String path) {
         return "api/" + path;
+    }
+
+    public void setNoTaxId() throws IOException {
+
+        String result = this.sendGetRequest(this.create20API("taxes"));
+        JSONObject parsed = new JSONObject(result);
+
+        JSONArray taxes = parsed.getJSONArray("data");
+
+        for (int index = 0; index < taxes.length(); index++) {
+
+            if (taxes.getJSONObject(index).getString("name").equalsIgnoreCase("No Tax")) {
+                CommonKeys.setNoTaxId(taxes.getJSONObject(index).getString("id"));
+            }
+
+        }
+
     }
 
     protected String createGetURL(String path, int page, int pageSize) {

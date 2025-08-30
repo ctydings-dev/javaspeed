@@ -48,6 +48,14 @@ public class LightspeedDataParser {
         toSet.put(field, value);
     }
 
+    public static void setJSONInteger(JSONObject toSet, String field, Integer value) {
+        if (value == null && ignoreNull == true) {
+            return;
+        }
+
+        toSet.put(field, value);
+    }
+
     public static String getJSONString(JSONObject value, String field) {
         if (value.isNull(field)) {
             return "";

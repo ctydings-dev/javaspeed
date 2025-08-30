@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import javaspeed.lightspeed.data.Customer;
 import javaspeed.lightspeed.data.Product;
+import javaspeed.lightspeed.data.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -79,6 +80,20 @@ public class CustomerCaller extends LightspeedCaller {
             System.out.println("DELETEING " + toDelete.getId() + " : " + counter + " OF " + customers.size());
         }
 
+    }
+
+    public List<User> getUsers() throws IOException {
+        String data = this.sendGetRequest(this.create20API("users"));
+        JSONObject parsed = new JSONObject(data);
+        JSONArray customers = parsed.getJSONArray("data");
+        List<User> ret = new ArrayList<>();
+
+        for (int index = 0; index < customers.length(); index++) {
+            User toAdd = new User();
+            toAdd.loadJSONData(customers.getJSONObject(index));
+            ret.add(toAdd);
+        }
+        return ret;
     }
 
 }
